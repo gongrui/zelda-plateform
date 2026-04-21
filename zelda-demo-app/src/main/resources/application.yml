@@ -1,0 +1,49 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: zelda-demo-app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/zelda_demo
+    username: postgres
+    password: postgres
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  is-print: false
+
+mybatis-flex:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.blue.demo.entity
+
+cloud:
+  nacos:
+    discovery:
+      server-addr: localhost:8848
+      namespace: public
+      group: DEFAULT_GROUP
+    config:
+      server-addr: localhost:8848
+      namespace: public
+      group: DEFAULT_GROUP
+      file-extension: yaml
+      refresh-enabled: true
+
+logging:
+  level:
+    com.blue.demo: debug

@@ -1,0 +1,28 @@
+{
+  "name": "zelda-demo-app-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "订单管理演示应用 - Vue3 + NaiveUI + Sa-Token OAuth2",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@vicons/ionicons5": "^0.13.0",
+    "axios": "^1.7.9",
+    "dayjs": "^1.11.13",
+    "naive-ui": "^2.41.0",
+    "pinia": "^2.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vue-tsc": "^2.2.0"
+  }
+}

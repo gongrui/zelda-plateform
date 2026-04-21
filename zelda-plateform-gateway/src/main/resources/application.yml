@@ -1,25 +1,60 @@
 server:
-  port: 15000
-spring:
-  main:
-    allow-bean-definition-overriding: true
-  application:
-    name: zelda-platform-gateway
-  config:
-    import:
-      - optional:nacos:${spring.application.name}.properties
-      - optional:nacos:redis.properties
-      - optional:nacos:cloud-default.yaml
-      - optional:classpath:gateway-route.yaml
-  cloud:
-    nacos:
-      server-addr: 127.0.0.1:8848  #写入根级别的 server-addr
-      discovery:
-        server-addr: ${spring.cloud.nacos.server-addr}
-      config:
-        server-addr: ${spring.cloud.nacos.server-addr}
+  port: 8080
 
-# 日志（方便调试）
+spring:
+  application:
+    name: zelda-plateform-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: zelda-plateform-uaa
+          uri: lb://zelda-plateform-uaa
+          predicates:
+            - Path=/oauth/**,/login/**,/actuator/**
+          filters:
+            - StripPrefix=0
+        - id: zelda-demo-app
+          uri: lb://zelda-demo-app
+          predicates:
+            - Path=/orders/**,/demo/**
+          filters:
+            - StripPrefix=0
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: false
+  is-print: false
+
+cloud:
+  nacos:
+    discovery:
+      server-addr: localhost:8848
+      namespace: public
+      group: DEFAULT_GROUP
+    config:
+      server-addr: localhost:8848
+      namespace: public
+      group: DEFAULT_GROUP
+      file-extension: yaml
+      refresh-enabled: true
+
 logging:
   level:
-    org.springframework.cloud.gateway: info
+    com.blue.zelda.platform.gateway: debug
+    cn.dev33.satoken: info

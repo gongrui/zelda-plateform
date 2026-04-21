@@ -18,6 +18,7 @@
         <module>zelda-fw</module>
         <module>zelda-plateform-gateway</module>
         <module>zelda-plateform-uaa</module>
+        <module>zelda-demo-app</module>
     </modules>
 
 

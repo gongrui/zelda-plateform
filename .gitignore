@@ -1,39 +1,80 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-.kotlin
+```
+# Dependencies
+node_modules/
+**/node_modules/
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
-
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Build artifacts
+dist/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+target/
 
-### VS Code ###
+# TypeScript/Vue build outputs
+**/dist/
+**/build/
+
+# Package lock files
+package-lock.json
+
+# IDE files
 .vscode/
+.idea/
+*.swp
+*.swo
 
-### Mac OS ###
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+*.env.*
+
+# Python related (if any Python components)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.venv*/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Java/Maven related
+*.class
+*.jar
+*.war
+*.ear
+**/target/
+!zelda-demo-app/target/
+!zelda-plateform-gateway/target/
+!zelda-plateform-uaa/target/
+
+# Temporary files
+*.tmp
+*.temp
+*~
 .DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Local configuration
+local.properties
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+```
