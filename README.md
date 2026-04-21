@@ -91,9 +91,9 @@ zelda/
 ### 启动顺序
 1. 启动 Nacos
 2. 启动 Redis
-3. 启动 UAA 服务（端口：9000）
-4. 启动 Gateway 服务（端口：8080）
-5. 启动 Demo 应用（端口：8081）
+3. 启动 UAA 服务（端口：18001）
+4. 启动 Gateway 服务（端口：18000）
+5. 启动 Demo 应用（端口：18002）
 6. 启动前端开发服务器
 
 ```bash
@@ -105,9 +105,9 @@ npm run dev
 
 ### 访问地址
 - **前端应用**：http://localhost:3000
-- **API 网关**：http://localhost:8080
-- **UAA 服务**：http://localhost:9000
-- **Swagger 文档**：http://localhost:8080/doc.html
+- **API 网关**：http://localhost:18000
+- **UAA 服务**：http://localhost:18001
+- **Swagger 文档**：http://localhost:18000/doc.html
 
 ## OAuth2 认证流程
 
