@@ -26,15 +26,28 @@ onMounted(async () => {
   }
 
   try {
-    // 使用授权码换取 token
+    // 从 sessionStorage 获取 code_verifier
+    const codeVerifier = sessionStorage.getItem('code_verifier')
+    
+    if (!codeVerifier) {
+      console.error('未找到 code_verifier，PKCE 验证失败')
+      router.push('/login')
+      return
+    }
+
+    // 使用授权码换取 token（携带 code_verifier）
     const response = await http.post('/oauth/token', null, {
       params: {
         grant_type: 'authorization_code',
         code,
         redirect_uri: window.location.origin + '/oauth2/callback',
         client_id: 'order-app',
+        code_verifier: codeVerifier,
       },
     })
+
+    // 清除存储的 code_verifier
+    sessionStorage.removeItem('code_verifier')
 
     if (response.code === 200 || response.data?.access_token) {
       const token = response.data?.access_token || response.access_token

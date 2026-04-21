@@ -17,7 +17,7 @@ import java.util.Arrays;
  *   <li>客户端 ID: 1001</li>
  *   <li>客户端密钥: aaaa-bbbb-cccc-dddd</li>
  *   <li>授权范围: openid, userinfo</li>
- *   <li>支持授权模式: authorization_code, password, refresh_token, client_credentials</li>
+ *   <li>支持授权模式: authorization_code, refresh_token</li>
  * </ul>
  *
  * @author zelda
@@ -52,9 +52,7 @@ public class InMemoryClientDetailsService implements OAuth2ClientDetailsService 
                 .setContractScopes(Arrays.asList("openid", "userinfo"))
                 .setAllowGrantTypes(Arrays.asList(
                         "authorization_code",
-                        "password",
-                        "refresh_token",
-                        "client_credentials"
+                        "refresh_token"
                 ));
     }
 }
