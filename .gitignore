@@ -1,70 +1,73 @@
 ```
-# Compiled and build artifacts
-*.class
-*.o
-*.obj
-*.out
-*.dll
-*.so
-*.a
-*.pyc
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+target/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# Python related
 __pycache__/
+*.pyc
 *.pyo
 *.pyd
+.Python
+env/
+venv/
+.venv/
+.venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.tmp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Java related
+*.class
 *.jar
 *.war
 *.ear
-*.zip
 *.tar.gz
-*.tgz
-*.tar.bz2
-*.tar.xz
+target/
+.gradle/
+!src/main/resources/application*.properties
+!src/main/resources/application*.yml
 
-# Dependencies
+# Vue/Vite specific
 node_modules/
-venv/
-.venv/
-.env
+dist/
+.cache/
+!.env
 .env.local
 .env.*
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-*.bak
-*.backup
-
-# Build directories
-target/
-build/
-dist/
-out/
-.DS_Store
-Thumbs.db
-
-# IDE specific
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
-.settings/
-.project
-
-# Test and coverage
-.coverage
-coverage/
-htmlcov/
-.nyc_output/
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-
-# OS generated
-.DS_Store
-ehthumbs.db
-Icon?
-Thumbs.db
+!vue.config.js
+!vite.config.ts
 ```

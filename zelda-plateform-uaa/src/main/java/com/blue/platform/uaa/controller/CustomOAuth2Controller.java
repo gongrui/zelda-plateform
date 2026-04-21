@@ -136,26 +136,12 @@ public class CustomOAuth2Controller {
             return result;
         }
 
-        // 10、隐藏式：下放 token
-        if (SaOAuth2Consts.ResponseType.token.equals(ra.responseType)) {
-            AccessTokenModel at = dataGenerate.generateAccessToken(ra, false, null);
-            String redirectUriStr = dataGenerate.buildImplicitRedirectUri(ra.redirectUri, at.accessToken, ra.state);
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("redirect_uri", redirectUriStr);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("msg", "ok");
-            result.put("data", data);
-            return result;
-        }
 
         throw new SaOAuth2Exception("无效 response_type: " + ra.responseType).setCode(SaOAuth2ErrorCode.CODE_30125);
     }
 
     /**
-     * 令牌端点 (支持 PKCE)
+     * 令牌端点 (仅支持授权码模式和刷新令牌模式)
      */
     @PostMapping("/token")
     public Object token(
@@ -165,10 +151,7 @@ public class CustomOAuth2Controller {
             @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "redirect_uri", required = false) String redirectUri,
             @RequestParam(value = "code_verifier", required = false) String codeVerifier,
-            @RequestParam(value = "refresh_token", required = false) String refreshToken,
-            @RequestParam(value = "scope", required = false) String scope,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password
+            @RequestParam(value = "refresh_token", required = false) String refreshToken
     ) {
         SaOAuth2Template oauth2Template = SaOAuth2Manager.getTemplate();
 
@@ -185,24 +168,20 @@ public class CustomOAuth2Controller {
             return errorResponse("invalid_client", "Invalid client_secret");
         }
 
-        // 2、根据授权类型处理
+        // 2、根据授权类型处理（仅支持授权码和刷新令牌）
         if ("authorization_code".equals(grantType)) {
-            return handleAuthorizationCodeGrant(clientId, code, redirectUri, codeVerifier, scope);
+            return handleAuthorizationCodeGrant(clientId, code, redirectUri, codeVerifier);
         } else if ("refresh_token".equals(grantType)) {
-            return handleRefreshTokenGrant(clientId, refreshToken, scope);
-        } else if ("password".equals(grantType)) {
-            return handlePasswordGrant(clientId, username, password, scope);
-        } else if ("client_credentials".equals(grantType)) {
-            return handleClientCredentialsGrant(clientId, scope);
+            return handleRefreshTokenGrant(clientId, refreshToken);
         }
 
-        return errorResponse("unsupported_grant_type", "Only authorization_code, refresh_token, password, client_credentials grant types are supported");
+        return errorResponse("unsupported_grant_type", "Only authorization_code and refresh_token grant types are supported");
     }
 
     /**
      * 处理授权码模式
      */
-    private Object handleAuthorizationCodeGrant(String clientId, String code, String redirectUri, String codeVerifier, String scope) {
+    private Object handleAuthorizationCodeGrant(String clientId, String code, String redirectUri, String codeVerifier) {
         // 1、验证授权码
         Map<String, Object> codeInfo = saOAuth2Template.getAuthCode(code);
         if (codeInfo == null) {
@@ -233,7 +212,7 @@ public class CustomOAuth2Controller {
 
         // 5、生成访问令牌和刷新令牌
         String accountId = (String) codeInfo.get("accountId");
-        String tokenScope = scope != null ? scope : (String) codeInfo.get("scope");
+        String tokenScope = (String) codeInfo.get("scope");
 
         StpUtil.login(accountId, true);
 
@@ -267,7 +246,7 @@ public class CustomOAuth2Controller {
     /**
      * 处理刷新令牌模式
      */
-    private Object handleRefreshTokenGrant(String clientId, String refreshToken, String scope) {
+    private Object handleRefreshTokenGrant(String clientId, String refreshToken) {
         // 1、验证刷新令牌
         Map<String, Object> tokenInfo = saOAuth2Template.getRefreshTokenInfo(refreshToken);
         if (tokenInfo == null) {
@@ -281,7 +260,7 @@ public class CustomOAuth2Controller {
 
         // 3、生成新的访问令牌
         String accountId = (String) tokenInfo.get("accountId");
-        String tokenScope = scope != null ? scope : (String) tokenInfo.get("scope");
+        String tokenScope = (String) tokenInfo.get("scope");
 
         StpUtil.login(accountId, true);
 
@@ -312,64 +291,6 @@ public class CustomOAuth2Controller {
         return result;
     }
 
-    /**
-     * 处理密码模式
-     */
-    private Object handlePasswordGrant(String clientId, String username, String password, String scope) {
-        if (username == null || password == null) {
-            return errorResponse("invalid_request", "Missing username or password");
-        }
-
-        // 模拟登录验证
-        if ("admin".equals(username) && "123456".equals(password)) {
-            StpUtil.login("10001", true);
-
-            SaOAuth2ServerConfig cfg = SaOAuth2Manager.getServerConfig();
-            long accessTokenTimeout = cfg.getAccessTokenTimeout();
-            long refreshTokenTimeout = cfg.getRefreshTokenTimeout();
-
-            String accessToken = StpUtil.getTokenValue();
-            String refreshTokenValue = SaFoxUtil.getRandomString(32);
-
-            saOAuth2Template.saveAccessToken(accessToken, clientId, "10001", scope, accessTokenTimeout);
-            saOAuth2Template.saveRefreshToken(refreshTokenValue, clientId, "10001", scope, refreshTokenTimeout);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("access_token", accessToken);
-            result.put("refresh_token", refreshTokenValue);
-            result.put("token_type", "Bearer");
-            result.put("expires_in", accessTokenTimeout);
-            if (scope != null) {
-                result.put("scope", scope);
-            }
-
-            return result;
-        }
-
-        return errorResponse("invalid_grant", "Invalid username or password");
-    }
-
-    /**
-     * 处理客户端凭证模式
-     */
-    private Object handleClientCredentialsGrant(String clientId, String scope) {
-        SaOAuth2ServerConfig cfg = SaOAuth2Manager.getServerConfig();
-        long accessTokenTimeout = cfg.getAccessTokenTimeout();
-
-        String accessToken = SaFoxUtil.getRandomString(32);
-
-        saOAuth2Template.saveAccessToken(accessToken, clientId, clientId, scope, accessTokenTimeout);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("access_token", accessToken);
-        result.put("token_type", "Bearer");
-        result.put("expires_in", accessTokenTimeout);
-        if (scope != null) {
-            result.put("scope", scope);
-        }
-
-        return result;
-    }
 
     /**
      * 构建错误响应

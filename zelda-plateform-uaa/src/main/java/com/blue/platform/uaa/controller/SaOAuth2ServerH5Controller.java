@@ -99,20 +99,6 @@ public class SaOAuth2ServerH5Controller {
             return result;
         }
 
-        // 9、隐藏式：下放token
-        if (SaOAuth2Consts.ResponseType.token.equals(ra.responseType)) {
-            AccessTokenModel at = dataGenerate.generateAccessToken(ra, false, null);
-            String redirectUri = dataGenerate.buildImplicitRedirectUri(ra.redirectUri, at.accessToken, ra.state);
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("redirect_uri", redirectUri);
-
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("msg", "ok");
-            result.put("data", data);
-            return result;
-        }
 
         throw new SaOAuth2Exception("无效 response_type: " + ra.responseType).setCode(SaOAuth2ErrorCode.CODE_30125);
     }

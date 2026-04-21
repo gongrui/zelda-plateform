@@ -50,7 +50,7 @@ router.beforeEach((to, from, next) => {
   
   if (requiresAuth && !authStore.isLoggedIn) {
     // 未登录，跳转到 OAuth2 授权页面
-    const oauth2AuthUrl = `http://localhost:9000/oauth2/authorize?response_type=code&client_id=order-app&redirect_uri=${encodeURIComponent(window.location.origin + '/oauth2/callback')}&scope=read`
+    const oauth2AuthUrl = `http://localhost:18000/oauth2/authorize?response_type=code&client_id=order-app&redirect_uri=${encodeURIComponent(window.location.origin + '/oauth2/callback')}&scope=read`
     window.location.href = oauth2AuthUrl
     return
   }
