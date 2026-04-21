@@ -1,0 +1,4 @@
+com.blue.zelda.fw.security.autoconfigure.OAuth2ServerAutoConfiguration
+com.blue.zelda.fw.security.autoconfigure.OAuth2ResourceAutoConfiguration
+com.blue.zelda.fw.security.autoconfigure.OAuth2GatewayAutoConfiguration
+com.blue.zelda.fw.security.autoconfigure.AuthenticationContextAutoConfiguration

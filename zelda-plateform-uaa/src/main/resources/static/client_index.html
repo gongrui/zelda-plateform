@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>客户端首页</title>
+</head>
+<body>
+<h1>系统首页</h1>
+<div>正在验证登录状态...</div>
+
+
+
+
+
+我客户端的首页
+<script>
+    const config = {
+        clientId: "1001",
+        redirectUri: "http://127.0.0.1:15002/oauth-callback.html", // 这里改回调页名
+        oauthServer: "http://127.0.0.1:15002",
+        scope: "userinfo"
+    };
+
+    // 无token → 自动跳授权
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+        location.href = `${config.oauthServer}/oauth2-authorize.html?response_type=code&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(config.redirectUri)}&scope=${config.scope}`;
+    }
+</script>
+</body>
+</html>

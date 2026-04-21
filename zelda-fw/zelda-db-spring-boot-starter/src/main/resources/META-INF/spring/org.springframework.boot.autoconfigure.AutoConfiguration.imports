@@ -1,0 +1,3 @@
+com.blue.zelda.fw.autoconfigure.ZeldaMetaAutoConfiguration
+com.blue.zelda.fw.autoconfigure.MetaCacheAutoConfiguration
+com.blue.zelda.fw.autoconfigure.MetaRedisCacheConfiguration

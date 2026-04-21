@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>OAuth2 授权</title>
+    <style>
+        .panel { display: none; padding: 20px; max-width: 400px; margin: 50px auto; border: 1px solid #eee; border-radius: 8px; }
+        .active { display: block; }
+        input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        button { background: #409eff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<!-- 加载中 -->
+<div id="loading" class="panel active">
+    授权校验中...
+</div>
+
+<!-- 登录面板 -->
+<div id="loginPanel" class="panel">
+    <h3>账号登录123</h3>
+    <input id="username" placeholder="账号" value="admin">
+    <input id="password" placeholder="密码" value="123456">
+    <button onclick="doLogin()">登录</button>
+</div>
+
+<!-- 确认授权面板 -->
+<div id="confirmPanel" class="panel">
+    <h3>确认授权</h3>
+    <p>应用请求获取你的相关权限</p>
+    <button onclick="doConfirm()">确认授权</button>
+</div>
+
+<script>
+    //  you know ：全程不跳转、不刷新、不改 URL！
+    const params = new URLSearchParams(location.search);
+
+    // 页面初始化 → 调用后端接口
+    startCheck();
+
+    // 核心：调用 getRedirectUri（带Cookie！）
+    async function startCheck() {
+        showPanel("loading");
+
+        const res = await fetch("/oauth2/getRedirectUri" + location.search, {
+            method: "POST",
+            credentials: "include"  // 必须！
+        });
+        console.log("startCheck11111111111111",res);
+        const data = await res.json();
+
+
+
+        // ===== 下面全部是 【无刷新页面切换】 =====
+        if (data.code === 401) {
+            // 未登录 → 显示登录框
+            showPanel("loginPanel");
+        }
+        else if (data.code === 411) {
+            // 需要确认 → 显示确认框
+            showPanel("confirmPanel");
+        }
+        else if (data.code === 200) {
+            // 直接跳转
+            location.href = data.data.redirect_uri;
+        }
+    }
+
+    // 登录
+    async function doLogin() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        console.log('doLogin')
+        await fetch("/doLogin", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `username=${username}&password=${password}`,
+            credentials: "include"
+        });
+
+        // 登录成功 → 重新校验（无刷新）
+        startCheck();
+    }
+
+    // 确认授权
+    async function doConfirm() {
+        let postData = location.search.substr(1) + '&build_redirect_uri=true';
+        let res = await fetch("/oauth2/doConfirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: postData,
+            credentials: "include"
+        });
+        let resData = await res.json();
+        if (resData.code === 200) {
+            location.href = resData.redirect_uri;
+        }
+    }
+
+    // 切换面板（无跳转）
+    function showPanel(id) {
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+    }
+</script>
+</body>
+</html>

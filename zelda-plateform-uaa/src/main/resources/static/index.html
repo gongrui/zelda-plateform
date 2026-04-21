@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sa-Token OAuth2 PKCE Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .code-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            display: none;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 400px;
+            margin: 5px 0;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sa-Token OAuth2 PKCE Demo</h1>
+
+        <div class="info-box">
+            <h2>什么是 PKCE？</h2>
+            <p>PKCE（Proof Key for Code Exchange）是一种增强 OAuth 2.0 安全性的扩展协议，主要用于公共客户端（如移动应用、单页应用），防止授权码拦截攻击。</p>
+            <p><strong>核心流程：</strong></p>
+            <ol>
+                <li>客户端生成随机 <code>code_verifier</code></li>
+                <li>计算 <code>code_challenge</code> = BASE64URL(SHA256(code_verifier))</li>
+                <li>授权请求携带 <code>code_challenge</code> 和 <code>code_challenge_method</code></li>
+                <li>令牌请求携带原始 <code>code_verifier</code> 供服务器验证</li>
+            </ol>
+        </div>
+
+        <h2>PKCE 流程测试</h2>
+
+        <div class="step">
+            <div class="step-title">Step 1: 生成 PKCE 参数</div>
+            <button class="btn" onclick="generatePkceParams()">生成 code_verifier 和 code_challenge</button>
+            <div id="pkce-result" class="result"></div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">Step 2: 获取授权码</div>
+            <div class="form-group">
+                <label>Client ID:</label>
+                <input type="text" id="clientId" value="web_app" placeholder="请输入客户端ID">
+            </div>
+            <div class="form-group">
+                <label>Redirect URI:</label>
+                <input type="text" id="redirectUri" value="http://localhost:8080/callback" placeholder="请输入重定向URI">
+            </div>
+            <div class="form-group">
+                <label>Scope:</label>
+                <input type="text" id="scope" value="user_info" placeholder="请输入作用域">
+            </div>
+            <button class="btn" onclick="authorize()">获取授权码</button>
+            <div id="authorize-result" class="result"></div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">Step 3: 交换令牌</div>
+            <div class="form-group">
+                <label>Authorization Code:</label>
+                <input type="text" id="authCode" placeholder="从上一步获取授权码">
+            </div>
+            <button class="btn" onclick="exchangeToken()">交换令牌</button>
+            <div id="token-result" class="result"></div>
+        </div>
+
+        <div class="step">
+            <div class="step-title">Step 4: 访问受保护资源</div>
+            <button class="btn" onclick="accessProtectedResource()">访问 /api/test</button>
+            <div id="resource-result" class="result"></div>
+        </div>
+
+        <h2>配置说明</h2>
+        <div class="code-box">
+            <pre>// PKCE 参数生成示例 (JavaScript)
+
+function base64UrlEncode(buffer) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}
+
+function generatePkceParams() {
+    // 1. 生成 code_verifier (43-128个字符)
+    const codeVerifier = base64UrlEncode(crypto.getRandomValues(new Uint8Array(32)));
+    
+    // 2. 使用 SHA256 计算 code_challenge
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
+        .then(buffer => {
+            const codeChallenge = base64UrlEncode(buffer);
+            console.log('code_verifier:', codeVerifier);
+            console.log('code_challenge:', codeChallenge);
+        });
+}</pre>
+        </div>
+
+        <h2>API 端点</h2>
+        <div class="code-box">
+            <pre>// 授权端点
+GET /oauth2/authorize
+  ?response_type=code
+  &client_id=your_client_id
+  &redirect_uri=your_redirect_uri
+  &scope=user_info
+  &state=random_state
+  &code_challenge=your_code_challenge
+  &code_challenge_method=S256
+
+// 令牌端点
+POST /oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&client_id=your_client_id
+&client_secret=your_client_secret
+&code=authorization_code
+&redirect_uri=your_redirect_uri
+&code_verifier=your_code_verifier</pre>
+        </div>
+    </div>
+
+    <script>
+        let currentCodeVerifier = '';
+        let currentCodeChallenge = '';
+        let accessToken = '';
+        let refreshToken = '';
+
+        // 生成 PKCE 参数
+        function base64UrlEncode(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary)
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+
+        async function generatePkceParams() {
+            try {
+                // 1. 生成 code_verifier
+                const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+                currentCodeVerifier = base64UrlEncode(randomBytes);
+
+                // 2. 使用 SHA256 计算 code_challenge
+                const encoder = new TextEncoder();
+                const data = encoder.encode(currentCodeVerifier);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                currentCodeChallenge = base64UrlEncode(hashBuffer);
+
+                const resultDiv = document.getElementById('pkce-result');
+                resultDiv.style.display = 'block';
+                resultDiv.classList.remove('error');
+                resultDiv.innerHTML = `
+                    <strong>code_verifier:</strong><br>
+                    <code>${currentCodeVerifier}</code><br><br>
+                    <strong>code_challenge:</strong><br>
+                    <code>${currentCodeChallenge}</code><br><br>
+                    <strong>code_challenge_method:</strong> S256
+                `;
+            } catch (error) {
+                showError('pkce-result', '生成 PKCE 参数失败: ' + error.message);
+            }
+        }
+
+        // 获取授权码
+        async function authorize() {
+            const clientId = document.getElementById('clientId').value;
+            const redirectUri = document.getElementById('redirectUri').value;
+            const scope = document.getElementById('scope').value;
+
+            if (!currentCodeChallenge) {
+                showError('authorize-result', '请先点击"生成 code_verifier 和 code_challenge"');
+                return;
+            }
+
+            try {
+                // 构建授权 URL
+                const params = new URLSearchParams({
+                    response_type: 'code',
+                    client_id: clientId,
+                    redirect_uri: redirectUri,
+                    scope: scope,
+                    state: generateState(),
+                    code_challenge: currentCodeChallenge,
+                    code_challenge_method: 'S256'
+                });
+
+                // 模拟授权（实际会重定向到登录页面）
+                const authorizeUrl = `/oauth2/authorize?${params.toString()}`;
+                
+                // 使用 fetch 获取授权码（简化处理）
+                const response = await fetch(authorizeUrl);
+                const text = await response.text();
+                
+                const resultDiv = document.getElementById('authorize-result');
+                resultDiv.style.display = 'block';
+                
+                // 尝试解析 URL（如果重定向）
+                if (text.includes('redirect:')) {
+                    const match = text.match(/redirect:([^\s]+)/);
+                    if (match) {
+                        const url = new URL(match[1]);
+                        const code = url.searchParams.get('code');
+                        if (code) {
+                            document.getElementById('authCode').value = code;
+                            resultDiv.innerHTML = `
+                                <strong>授权成功！</strong><br>
+                                <strong>重定向 URL:</strong> ${match[1]}<br>
+                                <strong>授权码:</strong> <code>${code}</code>
+                            `;
+                        }
+                    }
+                } else {
+                    resultDiv.classList.remove('error');
+                    resultDiv.innerHTML = `
+                        <strong>授权请求已发起</strong><br>
+                        <strong>URL:</strong> ${authorizeUrl}<br>
+                        <strong>说明:</strong> 请在浏览器中完成登录授权，授权后会携带 code 回到 redirect_uri
+                    `;
+                }
+            } catch (error) {
+                showError('authorize-result', '获取授权码失败: ' + error.message);
+            }
+        }
+
+        // 交换令牌
+        async function exchangeToken() {
+            const clientId = document.getElementById('clientId').value;
+            const authCode = document.getElementById('authCode').value;
+
+            if (!authCode) {
+                showError('token-result', '请先获取授权码');
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: clientId,
+                    client_secret: 'test_secret',
+                    code: authCode,
+                    redirect_uri: document.getElementById('redirectUri').value,
+                    code_verifier: currentCodeVerifier
+                });
+
+                const response = await fetch('/oauth2/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await response.json();
+
+                const resultDiv = document.getElementById('token-result');
+                resultDiv.style.display = 'block';
+
+                if (data.access_token) {
+                    accessToken = data.access_token;
+                    refreshToken = data.refresh_token;
+                    resultDiv.innerHTML = `
+                        <strong>令牌获取成功！</strong><br>
+                        <strong>access_token:</strong> <code>${accessToken}</code><br>
+                        <strong>refresh_token:</strong> <code>${refreshToken}</code><br>
+                        <strong>token_type:</strong> ${data.token_type}<br>
+                        <strong>expires_in:</strong> ${data.expires_in}
+                    `;
+                } else {
+                    resultDiv.classList.add('error');
+                    resultDiv.innerHTML = `
+                        <strong>令牌获取失败</strong><br>
+                        <strong>error:</strong> ${data.error}<br>
+                        <strong>error_description:</strong> ${data.error_description}
+                    `;
+                }
+            } catch (error) {
+                showError('token-result', '交换令牌失败: ' + error.message);
+            }
+        }
+
+        // 访问受保护资源
+        async function accessProtectedResource() {
+            if (!accessToken) {
+                showError('resource-result', '请先获取访问令牌');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/test', {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.text();
+
+                const resultDiv = document.getElementById('resource-result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <strong>响应状态:</strong> ${response.status}<br>
+                    <strong>响应内容:</strong> ${data}
+                `;
+            } catch (error) {
+                showError('resource-result', '访问资源失败: ' + error.message);
+            }
+        }
+
+        // 生成随机 state
+        function generateState() {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            return base64UrlEncode(array);
+        }
+
+        // 显示错误
+        function showError(elementId, message) {
+            const resultDiv = document.getElementById(elementId);
+            resultDiv.style.display = 'block';
+            resultDiv.classList.add('error');
+            resultDiv.innerHTML = message;
+        }
+    </script>
+</body>
+</html>

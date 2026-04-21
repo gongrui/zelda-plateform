@@ -1,0 +1,103 @@
+server:
+  port: 15002
+# 应该配置到cloud-default.yaml中 需要广播的字典配置
+extend:
+  boot:
+    remote:
+      alone:
+        enabled: true
+        database: 1
+        # Redis服务器地址
+        host: ${spring.data.redis.host}
+        # Redis服务器连接端口
+        port: ${spring.data.redis.port}
+        # Redis服务器连接密码（默认为空）
+        password: ${spring.data.redis.password}
+        # 连接超时时间
+        timeout: 10s
+spring:
+  application:
+    name: blue-plateform-uaa
+  datasource:
+    # 数据库连接地址（修改为你的库名）
+    url: jdbc:postgresql://localhost:5432/zelda-system
+    # 数据库账号
+    username: postgres
+    # 数据库密码
+    password: 123456
+    # 驱动类（PostgreSQL 驱动，Spring Boot 可自动识别，写了更稳妥）
+    driver-class-name: org.postgresql.Driver
+
+  config:
+    import:
+      - optional:classpath:captcha.yaml
+      - optional:nacos:security.yaml
+      - optional:nacos:cloud-default.yaml
+      - optional:nacos:${spring.application.name}.properties
+      - optional:nacos:redis.properties
+      - optional:nacos:mybatis-plus-default.yaml
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      discovery:
+        server-addr: ${spring.cloud.nacos.server-addr}
+        namespace: zelda
+      config:
+        server-addr: ${spring.cloud.nacos.server-addr}
+        namespace: zelda
+  data:
+    redis:
+      client-name:
+mybatis-flex:
+  print-sql: true        # 打印真实SQL（带参数）
+  global-config:
+    print-banner: false  # 关闭Banner
+zelda:
+  security:
+    resource:
+      enabled: true       # 开启登录校验（因为要做系统管理）
+      ignore-paths:       # 只放行 OAuth2 接口
+        - /oauth2/**      # 必须放行！
+        - /doLogin        # 登录接口放行
+        - /favicon.ico
+        - /error
+sa-token:
+  # 全局 Cookie 配置（OAuth2 会自动继承）
+  cookie:
+    http-only: true       # 🔥 关键
+    secure: true          # 生产HTTPS
+    same-site: Lax
+    path: /
+
+  # OAuth2 服务端配置
+  oauth2:
+    server:
+      enable-password: true
+      enable-refresh-token: true
+      access-token-timeout: 7200
+      refresh-token-timeout: 2592000
+      # PKCE 支持配置
+      is-code: true
+      is-implicit: true
+      is-client: true
+      is-enable-controller: true
+
+    # 🔥 🔥 🔥 核心配置：让 OAuth2 自动把 AT/RT 写入 Cookie
+    auto-write-cookie: true
+
+# PKCE OAuth2 自定义配置
+pkce:
+  oauth2:
+    # 是否启用 PKCE 支持
+    enabled: true
+    # 授权码有效期（秒）
+    auth-code-timeout: 300
+    # 默认访问令牌有效期（秒）
+    access-token-timeout: 7200
+    # 默认刷新令牌有效期（秒）
+    refresh-token-timeout: 2592000
+logging:
+  level:
+    com.mybatisflex: DEBUG  # 必须开启DEBUG，否则SQL不输出
+    cn.dev33.satoken: DEBUG
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>客户端自动登录</title>
+</head>
+<body>
+<script>
+    // ====================== 【固定配置】你只需要看这里 ======================
+    const config = {
+        clientId: "1001",
+        clientSecret: "aaaa-bbbb-cccc-dddd",
+        redirectUri: "http://127.0.0.1:15002/oauth-callback.html",
+        scope: "",  // 你要的 scope
+        oauthServerUrl: "http://127.0.0.1:15002",
+        clientHomePage: "/client_index.html" // 授权成功后去的首页
+    };
+
+    // 1. 解析地址栏 code
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+
+    // ====================== 【核心逻辑 1】没有 code → 自动去授权 ======================
+    if (!code) {
+        console.log("无code，自动跳转到授权页");
+        location.href = `${config.oauthServerUrl}/login.html`
+            + `?response_type=code`
+            + `&client_id=${config.clientId}`
+            + `&redirect_uri=${encodeURIComponent(config.redirectUri)}`
+            + `&scope=${config.scope}`;
+    }
+
+// ====================== 【核心逻辑 2】有 code → 自动换 token，然后跳首页 ======================
+    else {
+        console.log("获取到code，自动换取token：", code);
+
+        (async () => {
+            try {
+                // 自动请求 token
+                const res = await fetch(`${config.oauthServerUrl}/oauth2/token`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        client_id: config.clientId,
+                        client_secret: config.clientSecret,
+                        grant_type: "authorization_code",
+                        code: code,
+                        redirect_uri: config.redirectUri
+                    }),
+                    credentials: "include"
+                });
+
+                const data = await res.json();
+
+                if (data.access_token) {
+                    // 保存 token
+                    localStorage.setItem("access_token", data.access_token);
+                    console.log("token获取成功，跳首页");
+
+                    // ✅ 自动去客户端首页
+                    location.href = config.clientHomePage;
+                } else {
+                    alert("授权失败：" + JSON.stringify(data));
+                    location.href = config.clientHomePage;
+                }
+            } catch (e) {
+                alert("授权异常：" + e.message);
+                location.href = config.clientHomePage;
+            }
+        })();
+    }
+</script>
+</body>
+</html>

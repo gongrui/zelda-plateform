@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>授权确认</title>
+<style>
+    body{background:#f5f7fa;font-family:Microsoft Yahei}
+    .box{width:360px;margin:100px auto;background:#fff;padding:30px;border-radius:8px}
+    .btn{display:flex;gap:15px;margin-top:20px}
+    button{flex:1;height:44px;border:none;border-radius:4px;cursor:pointer}
+    .yes{background:#409eff;color:#fff}
+</style>
+
+<div class="box">
+    <h3>授权确认</h3>
+    <p>客户端：<span id="cid"></span></p>
+    <p>权限：<span id="scope"></span></p>
+    <div class="btn">
+        <button class="yes" onclick="ok()">同意</button>
+        <button onclick="history.back()">拒绝</button>
+    </div>
+</div>
+
+<script>
+    const p = new URLSearchParams(location.search)
+    const clientId = p.get('client_id')
+    const scope = p.get('scope')
+    document.getElementById('cid').innerText = clientId
+    document.getElementById('scope').innerText = scope
+
+    async function ok() {
+        await fetch('/oauth2/doConfirm?client_id=' + clientId + '&scope=' + scope, { method: 'POST' })
+        location.reload()
+    }
+</script>

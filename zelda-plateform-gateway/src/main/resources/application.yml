@@ -1,0 +1,25 @@
+server:
+  port: 15000
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: zelda-platform-gateway
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.properties
+      - optional:nacos:redis.properties
+      - optional:nacos:cloud-default.yaml
+      - optional:classpath:gateway-route.yaml
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848  #写入根级别的 server-addr
+      discovery:
+        server-addr: ${spring.cloud.nacos.server-addr}
+      config:
+        server-addr: ${spring.cloud.nacos.server-addr}
+
+# 日志（方便调试）
+logging:
+  level:
+    org.springframework.cloud.gateway: info

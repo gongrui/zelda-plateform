@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 项目基本信息 -->
+    <groupId>com.blue</groupId>
+    <artifactId>zelda-dependencies</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <!-- 统一版本管理包，使用pom打包 -->
+    <packaging>pom</packaging>
+    <description>zelda 平台包版本管理</description>
+
+    <!-- ===================== 全局版本属性配置 ===================== -->
+    <properties>
+        <!-- 构建基础配置 -->
+        <skipTests>true</skipTests>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <java.version>21</java.version>
+        <jdk.version>21</jdk.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+
+        <!-- Maven 插件版本 -->
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        <maven-checkstyle-plugin.version>3.2.1</maven-checkstyle-plugin.version>
+        <spotless-maven-plugin.version>2.22.1</spotless-maven-plugin.version>
+
+        <!-- 本项目统一版本 -->
+        <zelda-platform.version>1.0-SNAPSHOT</zelda-platform.version>
+
+        <!-- 核心基础依赖版本 -->
+        <lombok.version>1.18.44</lombok.version>
+        <jakarta-validation.version>3.1.0</jakarta-validation.version>
+        <transmittable.version>2.14.5</transmittable.version>
+
+        <!-- Spring 生态版本 -->
+        <spring-boot.version>4.0.3</spring-boot.version>
+        <spring-cloud.version>2025.1.0</spring-cloud.version>
+        <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
+        <spring-boot-admin.version>4.0.3</spring-boot-admin.version>
+        <spring-ai.version>1.1.2</spring-ai.version>
+
+        <!-- 数据库 & 缓存版本 -->
+        <mybatis-flex.version>1.11.6</mybatis-flex.version>
+        <dynamic-datasource.version>4.5.0</dynamic-datasource.version>
+        <postgrs.version>42.7.9</postgrs.version>
+        <redisson.version>4.3.0</redisson.version>
+
+        <!-- 对象存储版本 -->
+        <minio.version>8.5.11</minio.version>
+        <aliyun-sdk-oss.version>3.18.3</aliyun-sdk-oss.version>
+        <x-file-storage-spring.version>最新稳定版</x-file-storage-spring.version>
+
+        <!-- 工具类库版本 -->
+        <guava.version>33.5.0-jre</guava.version>
+        <hutool.version>5.8.42</hutool.version>
+        <bcpkix-jdk18on.version>1.79</bcpkix-jdk18on.version>
+        <mvel2.version>2.5.2.Final</mvel2.version>
+
+        <!-- API文档版本 -->
+        <springdoc-openapi.version>1.8.0</springdoc-openapi.version>
+        <knife4j.version>4.6.0</knife4j.version>
+        <knife4j-springdoc-ui.version>3.0.3</knife4j-springdoc-ui.version>
+        <swagger.version>2.2.9</swagger.version>
+
+        <!-- 权限安全版本 -->
+        <sa-token.version>1.45.0</sa-token.version>
+
+
+
+        <!-- JSON 序列化版本 -->
+        <jackson.version>3.1.1</jackson.version>
+
+        <!-- 验证码版本 -->
+        <tianai-captcha.version>1.5.5</tianai-captcha.version>
+
+        <!-- ORM 扩展版本 -->
+        <anyline.version>8.7.3-jdk21-20251120</anyline.version>
+    </properties>
+
+    <!-- ✅ 全局公共依赖：所有子模块自动继承 -->
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ===================== 依赖版本统一管理 ===================== -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- ==================== 1. 核心基础依赖 ==================== -->
+
+            <!-- 线程上下文传递 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>${transmittable.version}</version>
+            </dependency>
+            <!-- 校验规范API -->
+            <dependency>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>${jakarta-validation.version}</version>
+            </dependency>
+
+            <!-- ==================== 2. Spring 生态全家桶 ==================== -->
+            <!-- Spring Boot 核心依赖 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud 微服务 -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Cloud Alibaba -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring Boot Admin 服务监控 -->
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-dependencies</artifactId>
+                <version>${spring-boot-admin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ==================== 3. 数据库 & 缓存 ==================== -->
+            <!-- MyBatis-Flex ORM框架 -->
+            <dependency>
+                <groupId>com.mybatis-flex</groupId>
+                <artifactId>mybatis-flex-dependencies</artifactId>
+                <version>${mybatis-flex.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 动态数据源 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
+                <version>${dynamic-datasource.version}</version>
+            </dependency>
+            <!-- PostgreSQL 驱动 -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgrs.version}</version>
+            </dependency>
+            <!-- Redisson 分布式缓存 -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- ==================== 4. 对象存储 ==================== -->
+            <!-- MinIO 分布式文件存储 -->
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
+            <!-- 文件上传统一SDK -->
+            <dependency>
+                <groupId>org.dromara.x-file-storage</groupId>
+                <artifactId>x-file-storage-spring</artifactId>
+                <version>${x-file-storage-spring.version}</version>
+            </dependency>
+
+            <!-- ==================== 5. 工具类库 ==================== -->
+            <!-- Google Guava -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <!-- Hutool 工具包 -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-bom</artifactId>
+                <version>${hutool.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- 加密算法 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bcpkix-jdk18on.version}</version>
+            </dependency>
+            <!-- 表达式引擎 -->
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel2.version}</version>
+            </dependency>
+
+            <!-- ==================== 6. API 接口文档 ==================== -->
+            <!-- Knife4j 接口文档 -->
+            <dependency>
+                <groupId>com.github.xingfudeshi</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.xingfudeshi</groupId>
+                <artifactId>knife4j-gateway-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+            <!-- Swagger 注解 -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+
+            <!-- ==================== 7. 权限安全 ==================== -->
+            <!-- Sa-Token 权限认证 -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-bom</artifactId>
+                <version>${sa-token.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ==================== 8. JSON 序列化 ==================== -->
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ==================== 9. 验证码 ==================== -->
+            <dependency>
+                <groupId>cloud.tianai.captcha</groupId>
+                <artifactId>tianai-captcha-springboot-starter</artifactId>
+                <version>${tianai-captcha.version}</version>
+            </dependency>
+
+            <!-- ==================== 10. 项目自定义模块 ==================== -->
+            <dependency>
+                <groupId>com.blue</groupId>
+                <artifactId>zelda-fw-core</artifactId>
+                <version>${zelda-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.blue</groupId>
+                <artifactId>zelda-common-spring-boot-starter</artifactId>
+                <version>${zelda-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.blue</groupId>
+                <artifactId>zelda-db-spring-boot-starter</artifactId>
+                <version>${zelda-platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.blue</groupId>
+                <artifactId>zelda-security-spring-boot-starter</artifactId>
+                <version>${zelda-platform.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ===================== 远程仓库配置 ===================== -->
+    <repositories>
+        <!-- 阿里云中央仓库 -->
+        <repository>
+            <id>alimaven</id>
+            <name>Maven Aliyun Mirror</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- Spring 里程碑仓库 -->
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <!-- Spring 快照仓库 -->
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <!-- ===================== 项目构建插件 ===================== -->
+    <build>
+        <!-- 资源文件配置 -->
+        <resources>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <filtering>false</filtering>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- 资源文件处理插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- 源码打包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Java 编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <release>${java.version}</release>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <parameters>true</parameters>
+                    <!-- Lombok 注解处理器 -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

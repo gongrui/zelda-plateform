@@ -1,0 +1,30 @@
+spring:
+  cloud:
+    gateway:
+      # 动态路由
+      dynamic-route:
+        type: redis
+        enabled: true
+      server:
+        webflux:
+          enabled: true
+          discovery:
+            locator:
+              enabled: true
+              lowerCaseServiceId: true
+          routes:
+            - id: blue-plateform-uaa
+              # 目标微服务名（Nacos里的服务名）
+              uri: lb://blue-plateform-uaa
+              predicates:
+                - Path=/uaa/**
+              filters:
+                - StripPrefix=1
+          httpclient:
+            compression: true
+            response-timeout: 300s
+            pool:
+              type: elastic
+              max-idle-time: 30s
+              max-connections: 1000
+              acquire-timeout: 180000
