@@ -1,12 +1,12 @@
-package com.example.config;
+package com.blue.platform.uaa.config;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.oauth2.config.SaOAuth2Config;
 import cn.dev33.satoken.oauth2.data.model.CodeModel;
 import cn.dev33.satoken.oauth2.template.SaOAuth2Template;
 import cn.dev33.satoken.util.SaFoxUtil;
-import com.example.entity.SysOauthClient;
-import com.example.service.SysOauthClientService;
+import com.blue.platform.uaa.system.entity.SysOauthClient;
+import com.blue.platform.uaa.system.service.SysOauthClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +25,8 @@ import java.util.Map;
 public class CustomSaOAuth2Template extends SaOAuth2Template {
 
     private final SaTokenDao saTokenDao;
+    
+    private final SysOauthClientService sysOauthClientService;
 
     // 自定义方法来存储包含 PKCE 信息的授权码
     public void saveAuthCodeWithPkce(String code, String clientId, String accountId, String scope, String redirectUri, String state, String codeChallenge, String codeChallengeMethod) {

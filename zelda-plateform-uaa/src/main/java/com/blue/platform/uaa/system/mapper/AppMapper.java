@@ -1,0 +1,14 @@
+package com.blue.platform.uaa.system.mapper;
+
+import com.blue.platform.uaa.system.entity.App;
+import com.mybatisflex.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 应用 Mapper 接口
+ *
+ * @author gongrui
+ */
+@Mapper
+public interface AppMapper extends BaseMapper<App> {
+}
